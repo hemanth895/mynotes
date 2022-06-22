@@ -8,24 +8,29 @@ import 'package:notes/Views/loginView.dart';
 import 'package:notes/Views/registerview.dart';
 import 'package:notes/Views/verifyemailview.dart';
 import 'dart:developer' as devtools show log;
+
+import 'firebase_options.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 //import 'package:notes/Views/loginView.dart';
 //import 'firebase_options/'
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(MaterialApp(
     title: 'Flutter Demo',
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
-    home: LoginView(),
+    home: const homepage(),
     routes: {
       //key value pairs strings->functions
       '/Login/': (context) => const LoginView(),
       '/Register/': (context) => const RegisterView(),
+      '/notes/': (context) => const notes(),
     },
   ));
 }
@@ -52,13 +57,7 @@ class homepage extends StatelessWidget {
                 return const VerifyEmailView();
               }
               // return const Text('done');
-              // final emailVerified = user?.emailVerified ?? false;
-              // if (emailVerified) {
-              //   print('verified user');
-              // } else {
-              //   return const LoginView();
-              // }
-              // return const Text('done');
+              
               return const LoginView();
             default:
               return const CircularProgressIndicator();
@@ -90,6 +89,7 @@ class _notesState extends State<notes> {
                 devtools.log(shouldLogout.toString());
                 if (shouldLogout) {
                   await FirebaseAuth.instance.signOut();
+                  // ignore: use_build_context_synchronously
                   Navigator.of(context).restorablePushNamedAndRemoveUntil(
                       '/Login/', (_) => false);
                 }
@@ -122,7 +122,7 @@ Future<bool> showLogOutDialog(BuildContext context) {
       builder: (context) {
         return AlertDialog(
             title: const Text('sign out'),
-            content: const Text('are u syre u want to signout?'),
+            content: const Text('are u sure u want to signout?'),
             actions: [
               TextButton(
                 onPressed: () {

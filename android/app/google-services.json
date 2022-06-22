@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "448982496080",
+    "project_id": "smithfirestore1749",
+    "storage_bucket": "smithfirestore1749.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:448982496080:android:b33160ad73ce5d36ccf255",
+        "android_client_info": {
+          "package_name": "hello.com.notes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "448982496080-v4i7d0qikffopuup0171o59dtc35cuhq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASDJP551r4THWPaaQs4K9ftI9c4Ep_TqI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "448982496080-v4i7d0qikffopuup0171o59dtc35cuhq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "448982496080-o0vp30manivjct38en748f58uqm3kbba.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "hello.com.notes"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
