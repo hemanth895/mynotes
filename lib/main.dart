@@ -1,5 +1,7 @@
 //import 'dart:html';
 
+// ignore_for_file: camel_case_types
+
 //import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -25,7 +27,7 @@ void main() async {
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
-    home: const homepage(),
+    home: const LoginView(),
     routes: {
       //key value pairs strings->functions
       '/Login/': (context) => const LoginView(),
@@ -68,6 +70,7 @@ class homepage extends StatelessWidget {
 
 enum MenuAction { logout }
 
+// ignore: camel_case_types
 class notes extends StatefulWidget {
   const notes({super.key});
 
@@ -80,9 +83,9 @@ class _notesState extends State<notes> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('main ui'),
+        title: const Text('MAIN UI'),
         actions: [
-          PopupMenuButton(onSelected: ((value) async {
+          PopupMenuButton<MenuAction>(onSelected: ((value) async {
             switch (value) {
               case MenuAction.logout:
                 final shouldLogout = await showLogOutDialog(context);
@@ -95,14 +98,14 @@ class _notesState extends State<notes> {
                 }
                 break;
             }
-          }), itemBuilder: ((context) {
+          }), itemBuilder: (context) {
             return const [
               PopupMenuItem<MenuAction>(
                 value: MenuAction.logout,
                 child: Text('Log Out'),
               )
             ];
-          }))
+          })
         ],
       ),
       body: const Text('hello world'),
@@ -112,17 +115,23 @@ class _notesState extends State<notes> {
 
 //tap on
 //upon pressing on popupmenuitem simulates onselect event
-//showDialog and AlertDialog
+//showDialog(stf class) and AlertDialog(stl class)
+
+//
+
+
 //CTA call to action
+//future and functions
 
 //write a logout func to display dialog
 Future<bool> showLogOutDialog(BuildContext context) {
   return showDialog<bool>(
+      //return optional boolean
       context: context,
       builder: (context) {
         return AlertDialog(
             title: const Text('sign out'),
-            content: const Text('are u sure u want to signout?'),
+            content: const Text('Are u sure u want to signout?'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -133,6 +142,7 @@ Future<bool> showLogOutDialog(BuildContext context) {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(true);
+
                 },
                 child: const Text('logout'),
               ),
