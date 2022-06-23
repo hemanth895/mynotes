@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
+import 'package:notes/constants/routes.dart';
+//import 'dart:developer' as devtools show log;
 
 import 'package:notes/firebase_options.dart';
+
+import '../utilities/showErrorDialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -73,14 +76,31 @@ class _LoginViewState extends State<LoginView> {
                               .signInWithEmailAndPassword(
                                   email: email, password: password);
                           Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/notes/', (route) => false);
+                              notesRoute, (route) => false);
                         } on FirebaseAuthException catch (e) {
                           //runtimetype
                           if (e.code == 'user-not-found') {
-                            devtools.log('user not found');
+                            // devtools.log('user not found');
+                            await showErrorDialog(
+                              context,
+                              'user not found',
+                            );
+                          } else if (e.code == 'wrong-password') {
+                            await showErrorDialog(
+                              context,
+                              'wrong credentials',
+                            );
                           } else {
-                            devtools.log('something else happened');
+                            await showErrorDialog(
+                              context,
+                              'Error:${e.code}',
+                            );
                           }
+                        } catch (e) {
+                          await showErrorDialog(
+                            context,
+                            e.toString(),
+                          );
                         }
 
                         //  FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -94,7 +114,7 @@ class _LoginViewState extends State<LoginView> {
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/Register/',
+                        register,
                         (route) => false,
                       );
                     },
@@ -110,4 +130,5 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
+
 

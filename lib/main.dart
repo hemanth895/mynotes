@@ -3,12 +3,15 @@
 // ignore_for_file: camel_case_types
 
 //import 'package:firebase_core/firebase_core.dart';
+import 'dart:js';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/Views/loginView.dart';
 import 'package:notes/Views/registerview.dart';
 import 'package:notes/Views/verifyemailview.dart';
+import 'package:notes/constants/routes.dart';
 import 'dart:developer' as devtools show log;
 
 import 'firebase_options.dart';
@@ -30,9 +33,9 @@ void main() async {
     home: const LoginView(),
     routes: {
       //key value pairs strings->functions
-      '/Login/': (context) => const LoginView(),
-      '/Register/': (context) => const RegisterView(),
-      '/notes/': (context) => const notes(),
+      login: (context) => const LoginView(),
+      register: (context) => const RegisterView(),
+      notesRoute: (context) => const notes(),
     },
   ));
 }
@@ -94,7 +97,7 @@ class _notesState extends State<notes> {
                   await FirebaseAuth.instance.signOut();
                   // ignore: use_build_context_synchronously
                   Navigator.of(context).restorablePushNamedAndRemoveUntil(
-                      '/Login/', (_) => false);
+                      login, (_) => false);
                 }
                 break;
             }
