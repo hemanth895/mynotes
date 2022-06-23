@@ -30,12 +30,13 @@ void main() async {
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
-    home: const LoginView(),
+    home: const homepage(),
     routes: {
       //key value pairs strings->functions
       login: (context) => const LoginView(),
       register: (context) => const RegisterView(),
       notesRoute: (context) => const notes(),
+      verify: ((context) => const VerifyEmailView()),
     },
   ));
 }
