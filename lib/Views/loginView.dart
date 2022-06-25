@@ -1,10 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/constants/routes.dart';
 //import 'dart:developer' as devtools show log;
 
 import 'package:notes/firebase_options.dart';
+import 'package:notes/services/auth/auth_exceptions.dart';
+import 'package:notes/services/auth/auth_service.dart';
 
 import '../utilities/showErrorDialog.dart';
 
@@ -39,9 +41,7 @@ class _LoginViewState extends State<LoginView> {
     return Scaffold(
       appBar: AppBar(title: const Text("Login")),
       body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
+        future: AuthService.firebase().initialize(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
@@ -65,20 +65,17 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   TextButton(
                       onPressed: () async {
-                        await Firebase.initializeApp(
-                            options: DefaultFirebaseOptions.currentPlatform);
-
+                        //await AuthService.firebase().initialize();
                         final email = _email.text;
                         final password = _password.text;
+                        await AuthService.firebase()
+                            .login(email: email, password: password);
 
                         try {
-                          final usercredential = await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                            email: email,
-                            password: password,
-                          );
-                          final user = FirebaseAuth.instance.currentUser;
-                          if (user?.emailVerified ?? false) {
+                          
+
+                          final user = AuthService.firebase().currentUser;
+                          if (user?.isEmailVerified ?? false) {
                             Navigator.of(context).pushNamedAndRemoveUntil(
                               notesRoute,
                               (route) => false,
@@ -89,30 +86,20 @@ class _LoginViewState extends State<LoginView> {
                               (route) => false,
                             );
                           }
-                          
-                        } on FirebaseAuthException catch (e) {
-                          //runtimetype
-                          if (e.code == 'user-not-found') {
-                            // devtools.log('user not found');
-                            await showErrorDialog(
-                              context,
-                              'user not found',
-                            );
-                          } else if (e.code == 'wrong-password') {
-                            await showErrorDialog(
-                              context,
-                              'wrong credentials',
-                            );
-                          } else {
-                            await showErrorDialog(
-                              context,
-                              'Error:${e.code}',
-                            );
-                          }
-                        } catch (e) {
+                        } on UserNotFoundException {
                           await showErrorDialog(
                             context,
-                            e.toString(),
+                            'user not found',
+                          );
+                        } on WrogPasswordAuthException {
+                          await showErrorDialog(
+                            context,
+                            'wrong credentials',
+                          );
+                        } on GenericAuthException {
+                          await showErrorDialog(
+                            context,
+                            'Authentication error',
                           );
                         }
 
@@ -143,5 +130,3 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
-
-

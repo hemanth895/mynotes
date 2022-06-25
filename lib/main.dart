@@ -3,17 +3,20 @@
 // ignore_for_file: camel_case_types
 
 //import 'package:firebase_core/firebase_core.dart';
-import 'dart:js';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/Views/loginView.dart';
 import 'package:notes/Views/registerview.dart';
 import 'package:notes/Views/verifyemailview.dart';
 import 'package:notes/constants/routes.dart';
+import 'package:notes/services/auth/auth_provider.dart';
+import 'package:notes/services/auth/auth_service.dart';
 import 'dart:developer' as devtools show log;
 
+import 'Views/notesview.dart';
 import 'firebase_options.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 //import 'package:notes/Views/loginView.dart';
@@ -21,9 +24,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  
 
   runApp(MaterialApp(
     title: 'Flutter Demo',
@@ -50,13 +51,13 @@ class homepage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: Firebase.initializeApp(),
-        builder: (BuildContext context, AsyncSnapshot<FirebaseApp> snapshot) {
+        future: AuthService.firebase().initialize(),
+        builder: (BuildContext context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              final user = FirebaseAuth.instance.currentUser;
+              final user = AuthService.firebase().currentUser;
               if (user != null) {
-                if (user.emailVerified) {
+                if (user.isEmailVerified) {
                   return const notes();
                 }
               } else {
@@ -72,50 +73,10 @@ class homepage extends StatelessWidget {
   }
 }
 
-enum MenuAction { logout }
 
-// ignore: camel_case_types
-class notes extends StatefulWidget {
-  const notes({super.key});
 
-  @override
-  State<notes> createState() => _notesState();
-}
 
-class _notesState extends State<notes> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('MAIN UI'),
-        actions: [
-          PopupMenuButton<MenuAction>(onSelected: ((value) async {
-            switch (value) {
-              case MenuAction.logout:
-                final shouldLogout = await showLogOutDialog(context);
-                devtools.log(shouldLogout.toString());
-                if (shouldLogout) {
-                  await FirebaseAuth.instance.signOut();
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(context).restorablePushNamedAndRemoveUntil(
-                      login, (_) => false);
-                }
-                break;
-            }
-          }), itemBuilder: (context) {
-            return const [
-              PopupMenuItem<MenuAction>(
-                value: MenuAction.logout,
-                child: Text('Log Out'),
-              )
-            ];
-          })
-        ],
-      ),
-      body: const Text('hello world'),
-    );
-  }
-}
+
 
 //tap on
 //upon pressing on popupmenuitem simulates onselect event
