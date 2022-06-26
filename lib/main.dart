@@ -12,15 +12,12 @@ import 'package:notes/Views/loginView.dart';
 import 'package:notes/Views/registerview.dart';
 import 'package:notes/Views/verifyemailview.dart';
 import 'package:notes/constants/routes.dart';
-import 'package:notes/services/auth/auth_provider.dart';
+//import 'package:notes/services/auth/auth_provider.dart';
 import 'package:notes/services/auth/auth_service.dart';
-import 'dart:developer' as devtools show log;
+//import 'dart:developer' as devtools show log;
 
 import 'Views/notesview.dart';
-import 'firebase_options.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
-//import 'package:notes/Views/loginView.dart';
-//import 'firebase_options/'
+//import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
