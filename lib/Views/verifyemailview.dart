@@ -35,7 +35,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               // ignore: use_build_context_synchronously
               Navigator.of(context).pushNamedAndRemoveUntil(
                 register,
-                (route) => true,
+                (route) => false,
               );
             },
             child: const Text('restart'),

@@ -4,7 +4,6 @@
 
 //import 'package:firebase_core/firebase_core.dart';
 
-
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,6 @@ import 'Views/notesview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
 
   runApp(MaterialApp(
     title: 'Flutter Demo',
@@ -57,11 +55,12 @@ class homepage extends StatelessWidget {
                 if (user.isEmailVerified) {
                   return const notes();
                 }
+                return RegisterView();
               } else {
                 return const VerifyEmailView();
               }
               // return const Text('done');
-              
+
               return const LoginView();
             default:
               return const CircularProgressIndicator();
@@ -70,17 +69,11 @@ class homepage extends StatelessWidget {
   }
 }
 
-
-
-
-
-
 //tap on
 //upon pressing on popupmenuitem simulates onselect event
 //showDialog(stf class) and AlertDialog(stl class)
 
 //
-
 
 //CTA call to action
 //future and functions
@@ -104,7 +97,6 @@ Future<bool> showLogOutDialog(BuildContext context) {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(true);
-
                 },
                 child: const Text('logout'),
               ),
