@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:notes/services/auth/auth_service.dart';
 import 'package:notes/services/crud/notesservice.dart';
-import 'dart:developer' as devtools show log;
-import '../constants/routes.dart';
-import '../enums/menuaction.dart';
-import '../main.dart';
+//import 'dart:developer' as devtools show log;
+import '../../constants/routes.dart';
+import '../../enums/menuaction.dart';
+import '../../main.dart';
 
 class Notes extends StatefulWidget {
   const Notes({super.key});
@@ -36,13 +36,19 @@ class _NotesState extends State<Notes> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('MAIN UI'),
+          title: const Text('My Notes'),
           actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(newNoteRoute);
+              },
+              icon: const Icon(Icons.add),
+            ),
             PopupMenuButton<MenuAction>(onSelected: ((value) async {
               switch (value) {
                 case MenuAction.logout:
                   final shouldLogout = await showLogOutDialog(context);
-                  devtools.log(shouldLogout.toString());
+
                   if (shouldLogout) {
                     await AuthService.firebase().logout();
 

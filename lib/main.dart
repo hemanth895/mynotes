@@ -11,9 +11,12 @@ import 'package:notes/Views/loginView.dart';
 import 'package:notes/Views/registerview.dart';
 import 'package:notes/Views/verifyemailview.dart';
 import 'package:notes/constants/routes.dart';
-import 'package:notes/Views/notesview.dart';
+import 'package:notes/Views/notes/notesview.dart';
 //import 'package:notes/services/auth/auth_provider.dart';
 import 'package:notes/services/auth/auth_service.dart';
+import 'package:path/path.dart';
+
+import 'Views/notes/newNotesView.dart';
 //import 'dart:developer' as devtools show log;
 
 //import 'Views/notesview.dart';
@@ -27,13 +30,14 @@ void main() {
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
-    home: const LoginView(),
+    home: const RegisterView(),
     routes: {
       //key value pairs strings->functions
       login: (context) => const LoginView(),
       register: (context) => const RegisterView(),
       notesRoute: (context) => const Notes(),
-      verify: (context) => const VerifyEmailView()
+      verify: (context) => const VerifyEmailView(),
+      newNoteRoute: (context) => const newNotesView()
     },
   ));
 }
