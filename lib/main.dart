@@ -1,6 +1,6 @@
 //import 'dart:html';
 
-// ignore_for_file: camel_case_types
+// ignore_for_file: camel_case_types, dead_code
 
 //import 'package:firebase_core/firebase_core.dart';
 
@@ -11,14 +11,15 @@ import 'package:notes/Views/loginView.dart';
 import 'package:notes/Views/registerview.dart';
 import 'package:notes/Views/verifyemailview.dart';
 import 'package:notes/constants/routes.dart';
+import 'package:notes/Views/notesview.dart';
 //import 'package:notes/services/auth/auth_provider.dart';
 import 'package:notes/services/auth/auth_service.dart';
 //import 'dart:developer' as devtools show log;
 
-import 'Views/notesview.dart';
+//import 'Views/notesview.dart';
 //import 'firebase_options.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(MaterialApp(
@@ -26,20 +27,20 @@ void main() async {
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
-    home: const homepage(),
+    home: const LoginView(),
     routes: {
       //key value pairs strings->functions
       login: (context) => const LoginView(),
       register: (context) => const RegisterView(),
-      notesRoute: (context) => const notes(),
-      verify: ((context) => const VerifyEmailView()),
+      notesRoute: (context) => const Notes(),
+      verify: (context) => const VerifyEmailView()
     },
   ));
 }
 
-// ignore: camel_case_types
-class homepage extends StatelessWidget {
-  const homepage({Key? key}) : super(key: key);
+
+class homePage extends StatelessWidget {
+  const homePage({Key? key}) : super(key: key);
 //being manager for routing to different pages of the app
 //and need to initialise firebase app
 
@@ -51,15 +52,16 @@ class homepage extends StatelessWidget {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               final user = AuthService.firebase().currentUser;
+
               if (user != null) {
                 if (user.isEmailVerified) {
-                  return const notes();
+                  return const Notes();
                 }
-                return RegisterView();
+                return const RegisterView();
               } else {
                 return const VerifyEmailView();
               }
-              // return const Text('done');
+              //return const Text('Done');
 
               return const LoginView();
             default:

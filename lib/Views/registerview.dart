@@ -6,7 +6,7 @@ import 'package:notes/services/auth/auth_exceptions.dart';
 import 'package:notes/services/auth/auth_service.dart';
 import 'package:notes/utilities/showErrorDialog.dart';
 
-import '../firebase_options.dart';
+//import '../firebase_options.dart';
 import 'dart:developer' as devtools show log;
 
 class RegisterView extends StatefulWidget {
@@ -78,22 +78,22 @@ class _RegisterViewState extends State<RegisterView> {
                             Navigator.of(context).pushNamed(verify);
 
                             //devtools.log(usercredential.toString());
-                          } on WeakPasswordAuthExceptions {
+                          } on WeakPasswordAuthExceptions catch (_) {
                             showErrorDialog(
                               context,
                               'weak password',
                             );
-                          } on EmailAlreadyInUseException {
+                          } on EmailAlreadyInUseException catch (_) {
                             await showErrorDialog(
                               context,
                               'email already in use',
                             );
-                          } on InvalidEmailAuthException {
+                          } on InvalidEmailAuthException catch (_) {
                             await showErrorDialog(
                               context,
                               'invalid email',
                             );
-                          } on GenericAuthException {
+                          } on GenericAuthException catch (_) {
                             await showErrorDialog(
                               context,
                               'failed to register',

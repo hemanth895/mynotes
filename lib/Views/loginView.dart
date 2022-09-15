@@ -1,10 +1,9 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_core/firebase_core.dart';
+
 import 'package:flutter/material.dart';
 import 'package:notes/constants/routes.dart';
 //import 'dart:developer' as devtools show log;
 
-import 'package:notes/firebase_options.dart';
+//import 'package:notes/firebase_options.dart';
 import 'package:notes/services/auth/auth_exceptions.dart';
 import 'package:notes/services/auth/auth_service.dart';
 
@@ -65,7 +64,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   TextButton(
                       onPressed: () async {
-                        //await AuthService.firebase().initialize();
+                        await AuthService.firebase().initialize();
                         final email = _email.text;
                         final password = _password.text;
                         await AuthService.firebase()
@@ -86,17 +85,17 @@ class _LoginViewState extends State<LoginView> {
                               (route) => false,
                             );
                           }
-                        } on UserNotFoundException {
+                        } on UserNotFoundException catch (_) {
                           await showErrorDialog(
                             context,
                             'user not found',
                           );
-                        } on WrogPasswordAuthException {
+                        } on WrogPasswordAuthException catch (_) {
                           await showErrorDialog(
                             context,
                             'wrong credentials',
                           );
-                        } on GenericAuthException {
+                        } on GenericAuthException catch (_) {
                           await showErrorDialog(
                             context,
                             'Authentication error',
