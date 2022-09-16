@@ -77,6 +77,8 @@ class _NotesState extends State<Notes> {
                     builder: (context, snapshot) {
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
+                        
+                        case ConnectionState.active:
                           return const Text('waiting for allnotes');
 
                         default:
