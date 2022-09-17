@@ -14,9 +14,15 @@ class notesService {
   Database? _db;
   List<dbnotes> _notes = [];
   static final notesService _shared = notesService._sharedInstance();
-  notesService._sharedInstance();
+  notesService._sharedInstance() {
+    _notesStreamController = StreamController<List<dbnotes>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
   factory notesService() => _shared;
-  final _notesStreamController = StreamController<List<dbnotes>>.broadcast();
+  late final StreamController<List<dbnotes>> _notesStreamController;
 
   Stream<List<dbnotes>> get allNotes => _notesStreamController.stream;
 
