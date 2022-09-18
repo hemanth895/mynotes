@@ -15,3 +15,5 @@ class CouldNotDeleteNotes implements Exception {}
 class CouldNotUpdateNotes implements Exception {}
 
 class CouldNotFindNotes implements Exception {}
+
+class UsershouldBesetBeforeGrabingItems implements Exception {}

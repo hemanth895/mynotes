@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:notes/extensions/lists/filters.dart';
 //import 'package:notes/Views/notesview.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,6 +14,7 @@ import 'package:path/path.dart' show join;
 class notesService {
   Database? _db;
   List<dbnotes> _notes = [];
+  dbuser? _user;
   static final notesService _shared = notesService._sharedInstance();
   notesService._sharedInstance() {
     _notesStreamController = StreamController<List<dbnotes>>.broadcast(
@@ -22,9 +24,22 @@ class notesService {
     );
   }
   factory notesService() => _shared;
+
   late final StreamController<List<dbnotes>> _notesStreamController;
 
-  Stream<List<dbnotes>> get allNotes => _notesStreamController.stream;
+  Stream<List<dbnotes>> get allNotes =>
+      _notesStreamController.stream.filter((note) {
+        final currentUser = _user as dbuser;
+        if (currentUser != null) {
+          return note.userId == currentUser.id;
+        } else {
+          throw UsershouldBesetBeforeGrabingItems();
+        }
+      });
+
+ 
+
+  
 
   Future<void> _cachedNotes() async {
     final allNotes = await getAllNotes();
@@ -32,12 +47,21 @@ class notesService {
     _notesStreamController.add(_notes);
   }
 
-  Future<dbuser> getOrCreateUser({required String email}) async {
+  Future<dbuser> getOrCreateUser({
+    required String email,
+    bool setAsCurrentUser = true,
+  }) async {
     try {
       final user = await getUser(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
       return user;
     } on CouldNotFindUser {
       final createdUser = await createUser(email: email);
+      if (setAsCurrentUser) {
+        _user = createdUser;
+      }
       return createdUser;
     } catch (e) {
       rethrow;
@@ -52,13 +76,21 @@ class notesService {
   // }
 
   Future<dbnotes> updateNotes(
-      {required dbnotes note, required String text}) async {
+      {
+    required dbnotes note,
+    required String text,
+  }) async {
     await _ensureDbIsOpen();
     final db = await _getDatabaseOrThrow();
     await getnote(id: note.id);
     final updatescount = await db.update(
       notestbl,
-      {textColumn: text},
+      {
+        textColumn: text,
+        isSyncedWithCloudColoumn: 0,
+      },
+      where: 'id=?',
+      whereArgs: [note.id],
     );
 
     if (updatescount == 0) {
@@ -137,14 +169,14 @@ class notesService {
     final notesid = await db.insert(notestbl, {
       userIdColumn: owner.id,
       textColumn: text,
-      isSyncedWithServerColumn: 1,
+      isSyncedWithCloudColoumn: 1,
     });
 
     final note = dbnotes(
       id: notesid,
       userId: owner.id,
       text: text,
-      isSyncedWithServer: true,
+      isSyncedWithCloud: true,
     );
     _notes.add(note);
     _notesStreamController.add(_notes);
@@ -262,7 +294,7 @@ class dbuser {
         email = map[emailColumn] as String;
 
   @override
-  String toString() => 'person,id=$id,email=$email';
+  String toString() => 'person,ID=$id,email=$email';
 
   @override
   bool operator ==(covariant dbuser other) => id == other.id;
@@ -275,24 +307,24 @@ class dbnotes {
   final int id;
   final int userId;
   final String text;
-  final bool isSyncedWithServer;
+  final bool isSyncedWithCloud;
 
   dbnotes({
     required this.id,
     required this.userId,
     required this.text,
-    required this.isSyncedWithServer,
+    required this.isSyncedWithCloud,
   });
   dbnotes.fromRow(Map<String, Object?> map)
       : id = map[idColumn] as int,
         userId = map[userIdColumn] as int,
         text = map[textColumn] as String,
-        isSyncedWithServer =
-            (map[isSyncedWithServerColumn] as int) == 1 ? true : false;
+        isSyncedWithCloud =
+            (map[isSyncedWithCloudColoumn] as int) == 1 ? true : false;
 
   @override
   String toString() =>
-      'note,id=$id,userId=$userId,isSyncedWithCloud=$isSyncedWithServer';
+      'note,ID=$id,userId=$userId,isSyncedWithCloud=$isSyncedWithCloud';
 
   @override
   bool operator ==(covariant dbnotes other) => id == other.id;
@@ -308,7 +340,7 @@ const idColumn = 'id';
 const emailColumn = 'email';
 const userIdColumn = 'user_id';
 const textColumn = 'text';
-const isSyncedWithServerColumn = 'is_synced_with_server';
+const isSyncedWithCloudColoumn = 'is_synced_with_cloud';
 
 const createUserTable = '''CREATE TABLE  IF NOT EXISTS "user" (
        	"id"	INTEGER NOT NULL,
