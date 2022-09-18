@@ -1,6 +1,7 @@
 //import 'package:firebase_auth/firebase_auth.dart';
 //import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:notes/Views/notes/createUpdateNoteView.dart';
 import 'package:notes/Views/notes/noteListView.dart';
 import 'package:notes/services/auth/auth_service.dart';
 import 'package:notes/services/crud/notesservice.dart';
@@ -41,7 +42,7 @@ class _NotesState extends State<Notes> {
           actions: [
             IconButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(newNoteRoute);
+                Navigator.of(context).pushNamed(createUpdateNoteRoute);
               },
               icon: const Icon(Icons.add),
             ),
@@ -83,10 +84,17 @@ class _NotesState extends State<Notes> {
                           if (snapshot.hasData) {
                             final allnotes = snapshot.data as List<dbnotes>;
                             return notesListView(
-                                notes: allnotes,
-                                onDeleteNote: (note) async {
-                                  await _notesService.deletenotes(id: note.id);
-                                });
+                              notes: allnotes,
+                              onDeleteNote: (note) async {
+                                await _notesService.deletenotes(id: note.id);
+                              },
+                              ontap: (note) {
+                                Navigator.of(context).pushNamed(
+                                  createUpdateNoteRoute,
+                                  arguments: note,
+                                );
+                              },
+                            );
                           } else {
                             return const CircularProgressIndicator();
                           }
