@@ -6,9 +6,9 @@
 
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_core/firebase_core.dart';
-import 'dart:html';
+//import 'dart:html';
 
-import 'package:bloc/bloc.dart';
+//import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/Views/loginView.dart';
@@ -16,9 +16,13 @@ import 'package:notes/Views/registerview.dart';
 import 'package:notes/Views/verifyemailview.dart';
 import 'package:notes/constants/routes.dart';
 import 'package:notes/Views/notes/notesview.dart';
+import 'package:notes/services/auth/Bloc/Auth_Events.dart';
+import 'package:notes/services/auth/Bloc/authBloc.dart';
+import 'package:notes/services/auth/Bloc/auth_state.dart';
 //import 'package:notes/services/auth/auth_provider.dart';
-import 'package:notes/services/auth/auth_service.dart';
-import 'package:path/path.dart';
+//import 'package:notes/services/auth/auth_service.dart';
+import 'package:notes/services/auth/firebase_auth_provider.dart';
+//import 'package:path/path.dart';
 
 import 'Views/notes/createUpdateNoteView.dart';
 //import 'dart:developer' as devtools show log;
@@ -34,7 +38,10 @@ void main() {
     theme: ThemeData(
       primarySwatch: Colors.blue,
     ),
-    home: const Homepage(),
+    home: BlocProvider<AuthBloc>(
+      create: (context) => AuthBloc(FirebaseAuthProvider()),
+      child: const homePage(),
+    ),
     routes: {
       //key value pairs strings->functions
       login: (context) => const LoginView(),
@@ -46,13 +53,28 @@ void main() {
   ));
 }
 
-// class homePage extends StatelessWidget {
-//   const homePage({Key? key}) : super(key: key);
-// //being manager for routing to different pages of the app
-// //and need to initialise firebase app
+class homePage extends StatelessWidget {
+  const homePage({Key? key}) : super(key: key);
+//being manager for routing to different pages of the app
+//and need to initialise firebase app
 
-//   @override
-//   Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
+    context.read<AuthBloc>().add(const AuthEventInitialise());
+    return BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
+      if (state is AuthStateLoggedIn) {
+        return const Notes();
+      } else if (state is AuthStateNeedsVerification) {
+        return const VerifyEmailView();
+      } else if (state is AuthStateLoggedOut) {
+        return LoginView();
+      } else {
+        return const Scaffold(
+          body: CircularProgressIndicator(),
+        );
+      }
+    });
+
 //     return FutureBuilder(
 //         future: AuthService.firebase().initialize(),
 //         builder: (BuildContext context, snapshot) {
@@ -88,166 +110,167 @@ void main() {
 //future and functions
 
 //write a logout func to display dialog
-Future<bool> showLogOutDialog(BuildContext context) {
-  return showDialog<bool>(
-      //return optional boolean
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-            title: const Text('sign out'),
-            content: const Text('Are u sure u want to signout?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-                child: const Text('cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: const Text('logout'),
-              ),
-            ]);
-      }).then((value) => value ?? false);
-}
-
-class Homepage extends StatefulWidget {
-  const Homepage({super.key});
-
-  @override
-  State<Homepage> createState() => _HomepageState();
-}
-
-class _HomepageState extends State<Homepage> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    _controller = TextEditingController();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CounterBloc(),
-      child: Scaffold(
-          appBar: AppBar(
-            title: const Text('testing Bloc'),
-          ),
-          body: BlocConsumer<CounterBloc, CounterState>(
-            listener: (context, state) {
-              _controller.clear();
-            },
-            builder: (context, state) {
-              final invlaidValue = (state is CounterStateInvalidNumber)
-                  ? state.invalidValue
-                  : '';
-              return Column(
-                children: [
-                  Text('current Value=>${state.value}'),
-                  Visibility(
-                    child: Text('invalid Input :$invlaidValue'),
-                    visible: state is CounterStateInvalidNumber,
+    Future<bool> showLogOutDialog(BuildContext context) {
+      return showDialog<bool>(
+          //return optional boolean
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+                title: const Text('sign out'),
+                content: const Text('Are u sure u want to signout?'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                    child: const Text('cancel'),
                   ),
-                  TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                        hintText: 'enter Your number here'),
-                    keyboardType: TextInputType.number,
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: const Text('logout'),
                   ),
-                  Row(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          context
-                              .read<CounterBloc>()
-                              .add(DecrementEvent(_controller.text));
-                        },
-                        child: const Text('-'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          context
-                              .read<CounterBloc>()
-                              .add(IncrementEvent(_controller.text));
-                        },
-                        child: const Text('+'),
-                      )
-                    ],
-                  ),
-                ],
-              );
-            },
-          )),
-    );
+                ]);
+          }).then((value) => value ?? false);
+    }
   }
-}
 
-@immutable
-abstract class CounterState {
-  final int value;
-  const CounterState(this.value);
-}
+// class Homepage extends StatefulWidget {
+//   const Homepage({super.key});
 
-class CounterStateValid extends CounterState {
-  const CounterStateValid(int value) : super(value);
-}
+//   @override
+//   State<Homepage> createState() => _HomepageState();
+// }
 
-class CounterStateInvalidNumber extends CounterState {
-  final String invalidValue;
+// class _HomepageState extends State<Homepage> {
+//   late final TextEditingController _controller;
 
-  const CounterStateInvalidNumber({
-    required this.invalidValue,
-    required int preveousValue,
-  }) : super(preveousValue);
-}
+//   @override
+//   void initState() {
+//     _controller = TextEditingController();
+//     super.initState();
+//   }
 
-@immutable
-abstract class CounterEvent {
-  final String value;
-  const CounterEvent(this.value);
-}
+//   @override
+//   void dispose() {
+//     _controller.dispose();
+//     super.dispose();
+//   }
 
-class IncrementEvent extends CounterEvent {
-  const IncrementEvent(String value) : super(value);
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocProvider(
+//       create: (context) => CounterBloc(),
+//       child: Scaffold(
+//           appBar: AppBar(
+//             title: const Text('testing Bloc'),
+//           ),
+//           body: BlocConsumer<CounterBloc, CounterState>(
+//             listener: (context, state) {
+//               _controller.clear();
+//             },
+//             builder: (context, state) {
+//               final invlaidValue = (state is CounterStateInvalidNumber)
+//                   ? state.invalidValue
+//                   : '';
+//               return Column(
+//                 children: [
+//                   Text('current Value=>${state.value}'),
+//                   Visibility(
+//                     child: Text('invalid Input :$invlaidValue'),
+//                     visible: state is CounterStateInvalidNumber,
+//                   ),
+//                   TextField(
+//                     controller: _controller,
+//                     decoration: const InputDecoration(
+//                         hintText: 'enter Your number here'),
+//                     keyboardType: TextInputType.number,
+//                   ),
+//                   Row(
+//                     children: [
+//                       TextButton(
+//                         onPressed: () {
+//                           context
+//                               .read<CounterBloc>()
+//                               .add(DecrementEvent(_controller.text));
+//                         },
+//                         child: const Text('-'),
+//                       ),
+//                       TextButton(
+//                         onPressed: () {
+//                           context
+//                               .read<CounterBloc>()
+//                               .add(IncrementEvent(_controller.text));
+//                         },
+//                         child: const Text('+'),
+//                       )
+//                     ],
+//                   ),
+//                 ],
+//               );
+//             },
+//           )),
+//     );
+//   }
+// }
 
-class DecrementEvent extends CounterEvent {
-  const DecrementEvent(String value) : super(value);
-}
+// @immutable
+// abstract class CounterState {
+//   final int value;
+//   const CounterState(this.value);
+// }
 
-class CounterBloc extends Bloc<CounterEvent, CounterState> {
-  CounterBloc() : super(const CounterStateValid(0)) {
-    on<IncrementEvent>((event, emit) {
-      final integer = int.tryParse(event.value);
-      if (integer == null) {
-        emit(
-          CounterStateInvalidNumber(
-              invalidValue: event.value, preveousValue: state.value),
-        );
-      } else {
-        emit(CounterStateValid(state.value + integer));
-      }
-    });
-    on<DecrementEvent>((Event, emit) {
-      final integer = int.tryParse(Event.value);
-      if (integer == null) {
-        emit(
-          CounterStateInvalidNumber(
-              invalidValue: Event.value, preveousValue: state.value),
-        );
-      } else {
-        emit(CounterStateValid(state.value - integer));
-      }
-    });
-  }
+// class CounterStateValid extends CounterState {
+//   const CounterStateValid(int value) : super(value);
+// }
+
+// class CounterStateInvalidNumber extends CounterState {
+//   final String invalidValue;
+
+//   const CounterStateInvalidNumber({
+//     required this.invalidValue,
+//     required int preveousValue,
+//   }) : super(preveousValue);
+// }
+
+// @immutable
+// abstract class CounterEvent {
+//   final String value;
+//   const CounterEvent(this.value);
+// }
+
+// class IncrementEvent extends CounterEvent {
+//   const IncrementEvent(String value) : super(value);
+// }
+
+// class DecrementEvent extends CounterEvent {
+//   const DecrementEvent(String value) : super(value);
+// }
+
+// class CounterBloc extends Bloc<CounterEvent, CounterState> {
+//   CounterBloc() : super(const CounterStateValid(0)) {
+//     on<IncrementEvent>((event, emit) {
+//       final integer = int.tryParse(event.value);
+//       if (integer == null) {
+//         emit(
+//           CounterStateInvalidNumber(
+//               invalidValue: event.value, preveousValue: state.value),
+//         );
+//       } else {
+//         emit(CounterStateValid(state.value + integer));
+//       }
+//     });
+//     on<DecrementEvent>((Event, emit) {
+//       final integer = int.tryParse(Event.value);
+//       if (integer == null) {
+//         emit(
+//           CounterStateInvalidNumber(
+//               invalidValue: Event.value, preveousValue: state.value),
+//         );
+//       } else {
+//         emit(CounterStateValid(state.value - integer));
+//       }
+//     });
+//   }
 }

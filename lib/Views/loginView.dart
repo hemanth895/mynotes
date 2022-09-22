@@ -1,6 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/constants/routes.dart';
+import 'package:notes/services/auth/Bloc/Auth_Events.dart';
+import 'package:notes/services/auth/Bloc/authBloc.dart';
 //import 'dart:developer' as devtools show log;
 
 //import 'package:notes/firebase_options.dart';
@@ -66,27 +69,32 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   TextButton(
                       onPressed: () async {
-                        await AuthService.firebase().initialize();
+                        //await AuthService.firebase().initialize();
                         final email = _email.text;
                         final password = _password.text;
-                        await AuthService.firebase()
-                            .login(email: email, password: password);
-
                         try {
-                          
+                          context.read<AuthBloc>().add(
+                                AuthEventLoggIn(
+                                  email,
+                                  password,
+                                ),
+                              );
 
-                          final user = AuthService.firebase().currentUser;
-                          if (user?.isEmailVerified ?? false) {
-                            Navigator.of(context).pushNamedAndRemoveUntil(
-                              notesRoute,
-                              (route) => false,
-                            );
-                          } else {
-                            Navigator.of(context).pushNamedAndRemoveUntil(
-                              verify,
-                              (route) => false,
-                            );
-                          }
+                          // await AuthService.firebase()
+                          //     .login(email: email, password: password);
+
+                          // final user = AuthService.firebase().currentUser;
+                          // if (user?.isEmailVerified ?? false) {
+                          //   Navigator.of(context).pushNamedAndRemoveUntil(
+                          //     notesRoute,
+                          //     (route) => false,
+                          //   );
+                          // } else {
+                          //   Navigator.of(context).pushNamedAndRemoveUntil(
+                          //     verify,
+                          //     (route) => false,
+                          //   );
+                          // }
                         } on UserNotFoundException catch (_) {
                           await showErrorDialog(
                             context,
