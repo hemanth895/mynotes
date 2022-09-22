@@ -1,9 +1,11 @@
 
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:notes/constants/routes.dart';
 import 'package:notes/services/auth/Bloc/Auth_Events.dart';
 import 'package:notes/services/auth/Bloc/authBloc.dart';
+import 'package:notes/services/auth/Bloc/auth_state.dart';
 //import 'dart:developer' as devtools show log;
 
 //import 'package:notes/firebase_options.dart';
@@ -11,8 +13,6 @@ import 'package:notes/services/auth/auth_exceptions.dart';
 import 'package:notes/services/auth/auth_service.dart';
 
 import '../utilities/dialog/errorDialog.dart';
-
-
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -67,59 +67,80 @@ class _LoginViewState extends State<LoginView> {
                     decoration:
                         const InputDecoration(hintText: "enter ur password"),
                   ),
-                  TextButton(
-                      onPressed: () async {
-                        //await AuthService.firebase().initialize();
-                        final email = _email.text;
-                        final password = _password.text;
-                        try {
+                  BlocListener<AuthBloc, AuthState>(
+                    listener: (context, state) async {
+                      if (state is AuthStateLoggedOut) {
+                        if (state.exception is UserNotFoundException) {
+                          await showErrorDialog(context, 'user not found');
+                        } else if (state.exception
+                            is WrogPasswordAuthException) {
+                          await showErrorDialog(context, 'wrong credentials..');
+                        } else if (state.exception is GenericAuthException) {
+                          await showErrorDialog(
+                              context, 'Authentication Error..');
+                        }
+                      }
+                    },
+                    child: TextButton(
+                        onPressed: () async {
+                          await AuthService.firebase().initialize();
+                          final email = _email.text;
+                          final password = _password.text;
                           context.read<AuthBloc>().add(
                                 AuthEventLoggIn(
                                   email,
                                   password,
                                 ),
                               );
+                          // try {
+                          //   context.read<AuthBloc>().add(
+                          //         AuthEventLoggIn(
+                          //           email,
+                          //           password,
+                          //         ),
+                          //       );
 
-                          // await AuthService.firebase()
-                          //     .login(email: email, password: password);
+                          //   // await AuthService.firebase()
+                          //   //     .login(email: email, password: password);
 
-                          // final user = AuthService.firebase().currentUser;
-                          // if (user?.isEmailVerified ?? false) {
-                          //   Navigator.of(context).pushNamedAndRemoveUntil(
-                          //     notesRoute,
-                          //     (route) => false,
+                          //   // final user = AuthService.firebase().currentUser;
+                          //   // if (user?.isEmailVerified ?? false) {
+                          //   //   Navigator.of(context).pushNamedAndRemoveUntil(
+                          //   //     notesRoute,
+                          //   //     (route) => false,
+                          //   //   );
+                          //   // } else {
+                          //   //   Navigator.of(context).pushNamedAndRemoveUntil(
+                          //   //     verify,
+                          //   //     (route) => false,
+                          //   //   );
+                          //   // }
+                          // } on UserNotFoundException catch (_) {
+                          //   await showErrorDialog(
+                          //     context,
+                          //     'user not found',
                           //   );
-                          // } else {
-                          //   Navigator.of(context).pushNamedAndRemoveUntil(
-                          //     verify,
-                          //     (route) => false,
+                          // } on WrogPasswordAuthException catch (_) {
+                          //   await showErrorDialog(
+                          //     context,
+                          //     'wrong credentials',
                           //   );
-                          // }
-                        } on UserNotFoundException catch (_) {
-                          await showErrorDialog(
-                            context,
-                            'user not found',
-                          );
-                        } on WrogPasswordAuthException catch (_) {
-                          await showErrorDialog(
-                            context,
-                            'wrong credentials',
-                          );
-                        } on GenericAuthException catch (_) {
-                          await showErrorDialog(
-                            context,
-                            'Authentication error',
-                          );
-                        }
+                          // } on GenericAuthException catch (_) {
+                          //   await showErrorDialog(
+                          //     context,
+                          //     'Authentication error',
+                          //   );
+                          //}
 
-                        //  FirebaseAuth.instance.signInWithEmailAndPassword(
-                        // email: email, password: password);
-                        // final usercredential = await FirebaseAuth.instance
-                        //     .signInWithEmailAndPassword(
-                        //         email: email, password: password);
-                        // print(usercredential);
-                      },
-                      child: const Text("Login")),
+                          //  FirebaseAuth.instance.signInWithEmailAndPassword(
+                          // email: email, password: password);
+                          // final usercredential = await FirebaseAuth.instance
+                          //     .signInWithEmailAndPassword(
+                          //         email: email, password: password);
+                          // print(usercredential);
+                        },
+                        child: const Text("Login")),
+                  ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pushNamedAndRemoveUntil(
