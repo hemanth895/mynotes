@@ -2,15 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:notes/constants/routes.dart';
+
 import 'package:notes/services/auth/Bloc/Auth_Events.dart';
 import 'package:notes/services/auth/Bloc/authBloc.dart';
 import 'package:notes/services/auth/Bloc/auth_state.dart';
-//import 'dart:developer' as devtools show log;
 
-//import 'package:notes/firebase_options.dart';
 import 'package:notes/services/auth/auth_exceptions.dart';
 import 'package:notes/services/auth/auth_service.dart';
+import 'package:notes/utilities/dialog/loading_dialog.dart';
 
 import '../utilities/dialog/errorDialog.dart';
 
@@ -24,6 +23,7 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
+  // CloseDialog? _closeDialog;
 
   @override
   void initState() {
@@ -42,46 +42,54 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Login")),
-      body: FutureBuilder(
-        future: AuthService.firebase().initialize(),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return Column(
-                children: [
-                  TextField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    decoration:
-                        const InputDecoration(hintText: "enter ur email here"),
-                  ),
-                  TextField(
-                    controller: _password,
-                    obscureText: true,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    decoration:
-                        const InputDecoration(hintText: "enter ur password"),
-                  ),
-                  BlocListener<AuthBloc, AuthState>(
-                    listener: (context, state) async {
-                      if (state is AuthStateLoggedOut) {
-                        if (state.exception is UserNotFoundException) {
-                          await showErrorDialog(context, 'user not found');
-                        } else if (state.exception
-                            is WrogPasswordAuthException) {
-                          await showErrorDialog(context, 'wrong credentials..');
-                        } else if (state.exception is GenericAuthException) {
-                          await showErrorDialog(
-                              context, 'Authentication Error..');
-                        }
-                      }
-                    },
-                    child: TextButton(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) async {
+        if (state is AuthStateLoggedOut) {
+          // final closeDialog = _closeDialog;
+          // if (state.isLoading && closeDialog != null) {
+          //   closeDialog();
+          //   _closeDialog = null;
+          // } else if (state.isLoading && closeDialog == null) {
+          //   _closeDialog = showLoadingDialog(
+          //     context: context,
+          //     text: 'loading..',
+          //   );
+          // }
+          if (state.exception is UserNotFoundException) {
+            await showErrorDialog(context, 'user not found');
+          } else if (state.exception is WrogPasswordAuthException) {
+            await showErrorDialog(context, 'wrong credentials..');
+          } else if (state.exception is GenericAuthException) {
+            await showErrorDialog(context, 'Authentication Error..');
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text("Login")),
+        body: FutureBuilder(
+          future: AuthService.firebase().initialize(),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                return Column(
+                  children: [
+                    TextField(
+                      controller: _email,
+                      keyboardType: TextInputType.emailAddress,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      decoration: const InputDecoration(
+                          hintText: "enter ur email here"),
+                    ),
+                    TextField(
+                      controller: _password,
+                      obscureText: true,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      decoration:
+                          const InputDecoration(hintText: "enter ur password"),
+                    ),
+                    TextButton(
                         onPressed: () async {
                           await AuthService.firebase().initialize();
                           final email = _email.text;
@@ -140,22 +148,26 @@ class _LoginViewState extends State<LoginView> {
                           // print(usercredential);
                         },
                         child: const Text("Login")),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        register,
-                        (route) => false,
-                      );
-                    },
-                    child: const Text('not registered yet?register here!'),
-                  ),
-                ],
-              );
-            default:
-              return const Text('logging in ....wait for  a while ');
-          }
-        },
+                        
+                    TextButton(
+                      onPressed: () {
+                        // Navigator.of(context).pushNamedAndRemoveUntil(
+                        //   register,
+                        //   (route) => false,
+                        // );
+                        context
+                            .read<AuthBloc>()
+                            .add(const AuthEventShouldRegister());
+                      },
+                      child: const Text('not registered yet?register here!'),
+                    ),
+                  ],
+                );
+              default:
+                return const Text('logging in ....wait for  a while ');
+            }
+          },
+        ),
       ),
     );
   }

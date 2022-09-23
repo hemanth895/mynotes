@@ -1,18 +1,42 @@
+
+
 import 'package:flutter/foundation.dart';
 import 'package:notes/services/auth/auth_user.dart';
+import 'package:equatable/equatable.dart';
 
 @immutable
 abstract class AuthState {
-  const AuthState();
+  final bool isLoading;
+  final String? loadingText;
+
+  const AuthState({
+    required this.isLoading,
+    this.loadingText = 'please wait a moment',
+  });
 }
 
-class AuthStateLoading extends AuthState {
-  const AuthStateLoading();
+class AuthStateUninitialized extends AuthState {
+  const AuthStateUninitialized({required bool isLoading})
+      : super(isLoading: isLoading);
 }
+
+class AuthStateRegistering extends AuthState {
+  final Exception? exception;
+
+  AuthStateRegistering({required this.exception, required isLoading})
+      : super(isLoading: isLoading);
+}
+
+// class AuthStateLoading extends AuthState {
+//   const AuthStateLoading();
+// }
 
 class AuthStateLoggedIn extends AuthState {
   final AuthUser user;
-  const AuthStateLoggedIn(this.user);
+  const AuthStateLoggedIn({
+    required this.user,
+    required bool isLoading,
+  }) : super(isLoading: isLoading);
 }
 
 // class AuthStateLoginFailure extends AuthState {
@@ -22,14 +46,23 @@ class AuthStateLoggedIn extends AuthState {
 // }
 
 class AuthStateNeedsVerification extends AuthState {
-  const AuthStateNeedsVerification();
+  const AuthStateNeedsVerification({required bool isLoading})
+      : super(isLoading: isLoading);
 }
 
-class AuthStateLoggedOut extends AuthState {
+class AuthStateLoggedOut extends AuthState with EquatableMixin {
   final Exception? exception;
-  const AuthStateLoggedOut(this.exception);
+  
+  const AuthStateLoggedOut({
+    required this.exception,
+    required bool isLoading,
+    String? loadingText,
+  }) : super(isLoading: isLoading, loadingText: loadingText);
+
+  @override
+  List<Object?> get props => [exception, isLoading];
 }
 
-class AuthStateLoggedOutFailure extends AuthState {
-  const AuthStateLoggedOutFailure(Exception e);
-}
+// class AuthStateLoggedOutFailure extends AuthState {
+//   const AuthStateLoggedOutFailure(Exception e);
+// }

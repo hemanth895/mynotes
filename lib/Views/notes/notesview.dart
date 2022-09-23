@@ -2,7 +2,7 @@
 //import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:notes/Views/notes/createUpdateNoteView.dart';
+//import 'package:notes/Views/notes/createUpdateNoteView.dart';
 import 'package:notes/Views/notes/noteListView.dart';
 import 'package:notes/services/auth/Bloc/Auth_Events.dart';
 import 'package:notes/services/auth/Bloc/authBloc.dart';
@@ -13,9 +13,9 @@ import 'package:notes/utilities/dialog/logoutDialog.dart';
 //import 'dart:developer' as devtools show log;
 import '../../constants/routes.dart';
 import '../../enums/menuaction.dart';
-import '../../main.dart';
+//import '../../main.dart';
 import '../../services/cloud/cloud_note.dart';
-import 'package:notes/main.dart' show showLogOutDialog;
+//import 'package:notes/main.dart' show showLogOutDialog;
 
 class Notes extends StatefulWidget {
   const Notes({super.key});
@@ -63,9 +63,10 @@ class _NotesState extends State<Notes> {
 
                   if (shouldLogout) {
                     context.read<AuthBloc>().add(AuthEventLogout());
+                    
 
-                    Navigator.of(context)
-                        .restorablePushNamedAndRemoveUntil(login, (_) => false);
+                    // Navigator.of(context)
+                    //     .restorablePushNamedAndRemoveUntil(login, (_) => false);
                   }
                   break;
               }

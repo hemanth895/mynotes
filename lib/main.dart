@@ -16,6 +16,7 @@ import 'package:notes/Views/registerview.dart';
 import 'package:notes/Views/verifyemailview.dart';
 import 'package:notes/constants/routes.dart';
 import 'package:notes/Views/notes/notesview.dart';
+import 'package:notes/helpers/loading/laoding_screen.dart';
 import 'package:notes/services/auth/Bloc/Auth_Events.dart';
 import 'package:notes/services/auth/Bloc/authBloc.dart';
 import 'package:notes/services/auth/Bloc/auth_state.dart';
@@ -44,10 +45,10 @@ void main() {
     ),
     routes: {
       //key value pairs strings->functions
-      login: (context) => const LoginView(),
-      register: (context) => const RegisterView(),
-      notesRoute: (context) => const Notes(),
-      verify: (context) => const VerifyEmailView(),
+      // login: (context) => const LoginView(),
+      // register: (context) => const RegisterView(),
+      // notesRoute: (context) => const Notes(),
+      // verify: (context) => const VerifyEmailView(),
       createUpdateNoteRoute: (context) => const createUpdateNoteView()
     },
   ));
@@ -61,13 +62,24 @@ class homePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<AuthBloc>().add(const AuthEventInitialise());
-    return BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
+    return BlocConsumer<AuthBloc, AuthState>(listener: ((context, state) {
+      if (state.isLoading) {
+        LoadingScreen().show(
+          context: context,
+          text: state.loadingText ?? 'please wait a moment',
+        );
+      } else {
+        LoadingScreen().hide();
+      }
+    }), builder: (context, state) {
       if (state is AuthStateLoggedIn) {
         return const Notes();
       } else if (state is AuthStateNeedsVerification) {
         return const VerifyEmailView();
       } else if (state is AuthStateLoggedOut) {
         return LoginView();
+      } else if (state is AuthStateRegistering) {
+        return const RegisterView();
       } else {
         return const Scaffold(
           body: CircularProgressIndicator(),
