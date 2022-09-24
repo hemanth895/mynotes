@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,7 +7,7 @@ import 'package:notes/services/auth/Bloc/auth_state.dart';
 
 import 'package:notes/services/auth/auth_exceptions.dart';
 import 'package:notes/services/auth/auth_service.dart';
-import 'package:notes/utilities/dialog/loading_dialog.dart';
+
 
 import '../utilities/dialog/errorDialog.dart';
 
@@ -56,7 +54,8 @@ class _LoginViewState extends State<LoginView> {
           //   );
           // }
           if (state.exception is UserNotFoundException) {
-            await showErrorDialog(context, 'user not found');
+            await showErrorDialog(
+                context, 'cannot find a user with entered credentials');
           } else if (state.exception is WrogPasswordAuthException) {
             await showErrorDialog(context, 'wrong credentials..');
           } else if (state.exception is GenericAuthException) {
@@ -71,97 +70,109 @@ class _LoginViewState extends State<LoginView> {
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.done:
-                return Column(
-                  children: [
-                    TextField(
-                      controller: _email,
-                      keyboardType: TextInputType.emailAddress,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      decoration: const InputDecoration(
-                          hintText: "enter ur email here"),
-                    ),
-                    TextField(
-                      controller: _password,
-                      obscureText: true,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      decoration:
-                          const InputDecoration(hintText: "enter ur password"),
-                    ),
-                    TextButton(
-                        onPressed: () async {
-                          await AuthService.firebase().initialize();
-                          final email = _email.text;
-                          final password = _password.text;
-                          context.read<AuthBloc>().add(
-                                AuthEventLoggIn(
-                                  email,
-                                  password,
-                                ),
-                              );
-                          // try {
-                          //   context.read<AuthBloc>().add(
-                          //         AuthEventLoggIn(
-                          //           email,
-                          //           password,
-                          //         ),
-                          //       );
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      const Text('please login to your account'),
+                      TextField(
+                        controller: _email,
+                        keyboardType: TextInputType.emailAddress,
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        decoration: const InputDecoration(
+                            hintText: "enter ur email here"),
+                      ),
+                      TextField(
+                        controller: _password,
+                        obscureText: true,
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        decoration: const InputDecoration(
+                            hintText: "enter ur password"),
+                      ),
+                      TextButton(
+                          onPressed: () async {
+                            await AuthService.firebase().initialize();
+                            final email = _email.text;
+                            final password = _password.text;
+                            context.read<AuthBloc>().add(
+                                  AuthEventLoggIn(
+                                    email,
+                                    password,
+                                  ),
+                                );
+                            // try {
+                            //   context.read<AuthBloc>().add(
+                            //         AuthEventLoggIn(
+                            //           email,
+                            //           password,
+                            //         ),
+                            //       );
 
-                          //   // await AuthService.firebase()
-                          //   //     .login(email: email, password: password);
+                            //   // await AuthService.firebase()
+                            //   //     .login(email: email, password: password);
 
-                          //   // final user = AuthService.firebase().currentUser;
-                          //   // if (user?.isEmailVerified ?? false) {
-                          //   //   Navigator.of(context).pushNamedAndRemoveUntil(
-                          //   //     notesRoute,
-                          //   //     (route) => false,
-                          //   //   );
-                          //   // } else {
-                          //   //   Navigator.of(context).pushNamedAndRemoveUntil(
-                          //   //     verify,
-                          //   //     (route) => false,
-                          //   //   );
-                          //   // }
-                          // } on UserNotFoundException catch (_) {
-                          //   await showErrorDialog(
-                          //     context,
-                          //     'user not found',
-                          //   );
-                          // } on WrogPasswordAuthException catch (_) {
-                          //   await showErrorDialog(
-                          //     context,
-                          //     'wrong credentials',
-                          //   );
-                          // } on GenericAuthException catch (_) {
-                          //   await showErrorDialog(
-                          //     context,
-                          //     'Authentication error',
-                          //   );
-                          //}
+                            //   // final user = AuthService.firebase().currentUser;
+                            //   // if (user?.isEmailVerified ?? false) {
+                            //   //   Navigator.of(context).pushNamedAndRemoveUntil(
+                            //   //     notesRoute,
+                            //   //     (route) => false,
+                            //   //   );
+                            //   // } else {
+                            //   //   Navigator.of(context).pushNamedAndRemoveUntil(
+                            //   //     verify,
+                            //   //     (route) => false,
+                            //   //   );
+                            //   // }
+                            // } on UserNotFoundException catch (_) {
+                            //   await showErrorDialog(
+                            //     context,
+                            //     'user not found',
+                            //   );
+                            // } on WrogPasswordAuthException catch (_) {
+                            //   await showErrorDialog(
+                            //     context,
+                            //     'wrong credentials',
+                            //   );
+                            // } on GenericAuthException catch (_) {
+                            //   await showErrorDialog(
+                            //     context,
+                            //     'Authentication error',
+                            //   );
+                            //}
 
-                          //  FirebaseAuth.instance.signInWithEmailAndPassword(
-                          // email: email, password: password);
-                          // final usercredential = await FirebaseAuth.instance
-                          //     .signInWithEmailAndPassword(
-                          //         email: email, password: password);
-                          // print(usercredential);
+                            //  FirebaseAuth.instance.signInWithEmailAndPassword(
+                            // email: email, password: password);
+                            // final usercredential = await FirebaseAuth.instance
+                            //     .signInWithEmailAndPassword(
+                            //         email: email, password: password);
+                            // print(usercredential);
+                          },
+                          child: const Text("Login")),
+                      TextButton(
+                        onPressed: () {
+                          // Navigator.of(context).pushNamedAndRemoveUntil(
+                          //   register,
+                          //   (route) => false,
+                          // );
+                          context
+                              .read<AuthBloc>()
+                              .add(const AuthEventShouldRegister());
                         },
-                        child: const Text("Login")),
-                        
-                    TextButton(
-                      onPressed: () {
-                        // Navigator.of(context).pushNamedAndRemoveUntil(
-                        //   register,
-                        //   (route) => false,
-                        // );
-                        context
-                            .read<AuthBloc>()
-                            .add(const AuthEventShouldRegister());
-                      },
-                      child: const Text('not registered yet?register here!'),
-                    ),
-                  ],
+                        child: const Text('not registered yet?register here!'),
+                      ),
+
+                      TextButton(
+                        onPressed: () {
+                          context
+                              .read<AuthBloc>()
+                              .add(AuthEventForgotpassword());
+                        },
+                        child: const Text('forgot password!'),
+                      ),
+                    ],
+                  ),
                 );
               default:
                 return const Text('logging in ....wait for  a while ');

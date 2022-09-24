@@ -11,6 +11,7 @@
 //import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notes/Views/forgotpasswordView.dart';
 import 'package:notes/Views/loginView.dart';
 import 'package:notes/Views/registerview.dart';
 import 'package:notes/Views/verifyemailview.dart';
@@ -78,6 +79,8 @@ class homePage extends StatelessWidget {
         return const VerifyEmailView();
       } else if (state is AuthStateLoggedOut) {
         return LoginView();
+      } else if (state is AuthStateForgotPassword) {
+        return const ForgotPasswordView();
       } else if (state is AuthStateRegistering) {
         return const RegisterView();
       } else {

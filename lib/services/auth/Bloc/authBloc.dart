@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-//import 'package:notes/constants/routes.dart';
+
 import 'package:notes/services/auth/Bloc/Auth_Events.dart';
 import 'package:notes/services/auth/Bloc/auth_state.dart';
 import 'package:notes/services/auth/auth_provider.dart';
@@ -13,6 +13,45 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(state);
       },
     );
+    on<AuthEventShouldRegister>(((event, emit) {
+      emit(
+        AuthStateRegistering(exception: null, isLoading: false),
+      );
+    }));
+
+    on<AuthEventForgotpassword>((event, emit) async {
+      emit(const AuthStateForgotPassword(
+        exception: null,
+        hasSentEmail: false,
+        isLoading: false,
+      ));
+      final email = event.email;
+      if (email == null) {
+        return;
+      }
+
+      emit(const AuthStateForgotPassword(
+        exception: null,
+        hasSentEmail: false,
+        isLoading: true,
+      ));
+
+      bool didSendEmail;
+      Exception? exception;
+      try {
+        await provider.sendPasswordReset(toEmail: email);
+        didSendEmail = true;
+        exception = null;
+      } on Exception catch (e) {
+        didSendEmail = false;
+        exception = e;
+      }
+      emit(AuthStateForgotPassword(
+        exception: exception,
+        hasSentEmail: didSendEmail,
+        isLoading: false,
+      ));
+    });
 
     on<AuthEventregister>((event, emit) async {
       final email = event.email;
